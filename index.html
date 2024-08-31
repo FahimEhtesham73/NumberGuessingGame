@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <title>Number Guessing Game</title>
+    <style>
+        body{
+            background-color:rgb(255, 255, 255);
+        }
+       
+        .table img {
+            max-width: 300px;
+            
+            height: 300px;
+        }
+        
+        
+    </style>
+</head>
+<body style="text-align: center;">
+
+    <div class="container">
+        <h1 class="text-primary">Number Guessing Game</h1>
+        <p class="lead">Guess a number between 0 and 10:</p>
+
+        <div class="form-group">
+            <input type="text" id="guessInput" class="alert alert-info" size="10px">
+        </div>
+        <br>
+        <button id="startButton" class="btn btn-success">Guess</button>
+        <button id="restartButton" class="btn btn-warning" >Restart</button>
+        <hr>
+        <p>Your Chances: <span id="remainingGuesses" class="alert alert-info">3</span></p>
+        <br>
+        <div id="alert-container"></div>
+        <hr>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Remaining Guesses</th>
+                    <th>Your Guess</th> 
+                    <th>System Guess</th>
+                </tr>
+            </thead>
+            <tbody id="tbody">
+                <tr>
+                    <td id="remainingGuessesCell">3</td>
+                    <td id="userGuessCell"></td> 
+                    <td id="systemGuessCell"></td>
+                </tr>
+            </tbody>
+        </table>
+        
+    </div>
+    
+    <div class="container">
+        <img id="number0Image" src="numbers/0.jpg" style="display: none">
+        <img id="number1Image" src="numbers/1.jpg" style="display: none">
+        <img id="number2Image" src="numbers/2.jpg" style="display: none">
+        <img id="number3Image" src="numbers/3.jpg" style="display: none">
+        <img id="number4Image" src="numbers/4.jpg" style="display: none">
+        <img id="number5Image" src="numbers/5.jpg" style="display: none">
+        <img id="number6Image" src="numbers/6.jpg" style="display: none">
+        <img id="number7Image" src="numbers/7.jpg" style="display: none">
+        <img id="number8Image" src="numbers/8.jpg" style="display: none">
+        <img id="number9Image" src="numbers/9.jpg" style="display: none">
+        <img id="number10Image" src="numbers/10.jpg" style="display: none">
+    </div>
+
+
+
+<script>
+
+
+const startButton = document.getElementById('startButton');
+var secretNumber = Math.floor(Math.random() * 10) + 1;
+console.log(secretNumber);
+let remainingGuesses = 3;
+let gameWon = false;
+let noRemainGuess=false;
+const guessInput = document.getElementById("guessInput");
+const restartButton = document.getElementById("restartButton");
+const remainingGuessesDisplay = document.getElementById("remainingGuesses");
+const remainingGuessesCell = document.getElementById("remainingGuessesCell");
+const systemGuessCell = document.getElementById("systemGuessCell");
+const userGuessCell = document.getElementById("userGuessCell"); 
+
+startButton.addEventListener("click", () => {
+    checkGuess();
+});
+
+restartButton.addEventListener("click", () => {
+    restartGame();
+});
+
+guessInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        checkGuess();
+    }
+});
+
+function hideAllNumberImages() {
+    for (let i = 0; i <= 10; i++) {
+        document.getElementById("number" + i + "Image").style.display = "none";
+    }
+}
+
+function showNumberImage(number) {
+    hideAllNumberImages();
+    const numberImage = document.getElementById("number" + number + "Image");
+}
+
+function checkGuess() {
+    if (gameWon) {
+        $('#alert-container').html('<div class="alert alert-info" role="alert">You have already guessed it. Please restart the game.</div>');
+        return;
+    }
+    if(noRemainGuess){
+        $('#alert-container').html('<div class="alert alert-danger" role="alert"> Sorry! No more remaining Guesses.</div>');
+        return;
+    }
+
+    const guess = parseInt(guessInput.value);
+
+    if (isNaN(guess) || guess < 0 || guess > 10) {
+        $('#alert-container').html('<div class="alert alert-danger" role="alert">Please enter a number between 1 and 10.</div>');
+        guessInput.value = "";
+        return;
+    }
+    
+    if (userGuessCell.textContent === "") {
+        userGuessCell.textContent = guess; 
+    } else {
+        userGuessCell.textContent += " , " + guess; 
+    }
+
+    if (remainingGuesses > 0) {
+        remainingGuesses--;
+        remainingGuessesDisplay.textContent = remainingGuesses;
+        remainingGuessesCell.textContent = remainingGuesses;
+
+        if (remainingGuesses === 0) {
+            $('#alert-container').html('<div class="alert alert-warning" role="alert">Out of guesses! The correct number was ' + secretNumber + '. Please restart the game.</div>');
+            guessInput.value = "";
+            systemGuessCell.innerHTML = '<img src="numbers/' + secretNumber + '.jpg" />';
+            noRemainGuess=true;
+        } else {
+            $('#alert-container').html('<div class="alert alert-danger" role="alert">Wrong guess. You have ' + remainingGuesses + ' guesses remaining.</div>');
+            guessInput.value = "";
+        }
+    } else {
+        $('#alert-container').html('<div class="alert alert-warning" role="alert">Out of guesses! Please restart the game.</div>');
+    }
+
+    if (guess === secretNumber) {
+        $('#alert-container').html('<div class="alert alert-success" role="alert">Congratulations! You guessed the correct number.</div>');
+        showNumberImage(secretNumber);
+        systemGuessCell.innerHTML = '<img src="numbers/' + secretNumber + '.jpg" />';
+        remainingGuessesDisplay.textContent = 0;
+        remainingGuessesCell.textContent = 0;
+        gameWon = true;
+    }
+}
+
+function restartGame() {
+    gameWon = false;
+    noRemainGuess=false;
+    guessInput.value = "";
+    remainingGuesses = 3;
+    remainingGuessesDisplay.textContent = remainingGuesses;
+    secretNumber = Math.floor(Math.random() * 10) + 1;
+    remainingGuessesCell.textContent = remainingGuesses;
+    systemGuessCell.innerHTML = "";
+    userGuessCell.innerHTML = "";
+    $('#alert-container').empty();
+    hideAllNumberImages();
+}
+
+
+   
+</script>
+</body>
+</html>
